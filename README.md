@@ -1,6 +1,11 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/ochinchina/oauth5g)](https://goreportcard.com/report/github.com/ochinchina/oauth5g)
 # oauth5g
 
 This project implements the oauth2 server & proxy defined in 3GPP TS 29.510. The 3GPP TS 29.510 defined how the oauth2 authorization should be implemented in the 5G network. This project mainly implements the interface defined in this standard.
+
+The architecture is shown as below:
+
+![alt text](https://github.com/ochinchina/oauth5g/blob/master/5g-oauth-architecture.png)
 
 # Compile the project
 

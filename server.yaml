@@ -1,0 +1,9 @@
+listenAddr: ":8081"
+http2: true
+tlsCertFile: cert/public.crt
+tlsKeyFile: cert/private.key
+tokenExpire: 3600
+instanceId: "688d750c-143c-11eb-ae2e-6fe26a8ed878"
+signature:
+  algorithm: "RS256"
+  keyFile: "private.pem"

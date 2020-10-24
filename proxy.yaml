@@ -1,0 +1,13 @@
+proxies:
+- listenAddr: ":8087"
+  authServer:
+    url: "http://localhost:8081/oauth2/token"
+    caCertFile: "cert/public.crt"
+    certFile: "cert/public.crt"
+    keyFile: "cert/private.key"
+    fqdn: "localhost"
+    http2: true
+  tokenReqPath: "/reqtoken"
+  tokenVerifyPath: "/verifytoken"
+  tokenVerifyKeyFile: "public.pem"
+  tokenVerifyAlgorithm: "RS256"

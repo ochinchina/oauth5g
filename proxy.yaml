@@ -1,5 +1,5 @@
 proxies:
-- listenAddr: ":8087"
+- listenAddr: ":8082"
   authServer:
     url: "http://localhost:8081/oauth2/token"
     caCertFile: "cert/public.crt"

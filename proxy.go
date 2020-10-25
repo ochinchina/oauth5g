@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Proxy oauth2 proxy
@@ -50,7 +51,12 @@ func (p *Proxy) Start(addr string) error {
 // the access code to the client
 func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 	atr := NewAccessTokenRequest()
-	err := atr.FromJSON(c.Request.Body)
+	var err error
+	if strings.Contains(c.ContentType(), "application/json") {
+		err = atr.FromJSON(c.Request.Body)
+	} else {
+		err = atr.FromX3WFormEncoding(c.Request.Body)
+	}
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return

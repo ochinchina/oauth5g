@@ -5,7 +5,7 @@ This project implements the oauth2 server & proxy defined in 3GPP TS 29.510. The
 
 The architecture is shown as below:
 
-![alt text](https://github.com/ochinchina/oauth5g/blob/master/5g-oauth-architecture.png)
+<img src="https://github.com/ochinchina/oauth5g/blob/master/5g-oauth-architecture.png" width="400x200">
 
 # Compile the project
 

@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// OAuthServer authorization server.
+// The authorization server will access the AccessTokenRequest and
+// reply the request with AccessTokenResponse.
 type OAuthServer struct {
 	// signature algorithm
 	alg jwa.SignatureAlgorithm
@@ -29,6 +32,7 @@ type OAuthServer struct {
 	tokenCache  *TokenCache
 }
 
+// NewOAuthServer create a NewOAuthServer server
 func NewOAuthServer(tokenReqPath string,
 	instanceId string,
 	tokenExpire time.Duration,
@@ -48,13 +52,14 @@ func NewOAuthServer(tokenReqPath string,
 		alg:         alg,
 		key:         key,
 		tokenCache:  NewTokenCache(int64(tokenExpire.Seconds() / 2))}
-	if len( tokenReqPath ) <= 0 {
+	if len(tokenReqPath) <= 0 {
 		tokenReqPath = "/oauth2/token"
 	}
 	router.POST(tokenReqPath, server.HandleTokenRequest)
 	return server
 }
 
+// Start start the authorization server in the address
 func (s *OAuthServer) Start(addr string) error {
 	if s.http2 {
 		log.Info("start http2 server")
@@ -79,6 +84,9 @@ func (s *OAuthServer) Start(addr string) error {
 	}
 }
 
+// HandleTokenRequest handle the AccessTokenRequest from the client
+// and reply with AccessTokenResponse object in json format if
+// the server will grant a valid access token to the client
 func (s *OAuthServer) HandleTokenRequest(c *gin.Context) {
 	b, err := c.GetRawData()
 	if err != nil {
@@ -111,7 +119,7 @@ func (s *OAuthServer) HandleTokenRequest(c *gin.Context) {
 }
 
 func (s *OAuthServer) getTokenFromCache(art *AccessTokenRequest) (string, error) {
-	if art.isRequestByType() {
+	if art.IsRequestByType() {
 		key := fmt.Sprintf("%s-%s", art.NfType, art.TargetNfType)
 		return s.tokenCache.GetToken(key)
 	}
@@ -120,7 +128,7 @@ func (s *OAuthServer) getTokenFromCache(art *AccessTokenRequest) (string, error)
 }
 
 func (s *OAuthServer) cacheTokenFor(art *AccessTokenRequest, expireTime int64, token string) {
-	if art.isRequestByType() {
+	if art.IsRequestByType() {
 		key := fmt.Sprintf("%s-%s", art.NfType, art.TargetNfType)
 		s.tokenCache.CacheToken(key, expireTime, token)
 	}
@@ -129,7 +137,7 @@ func (s *OAuthServer) cacheTokenFor(art *AccessTokenRequest, expireTime int64, t
 func (s *OAuthServer) createToken(art *AccessTokenRequest) (string, error) {
 	b, _ := art.ToJson()
 	log.Info("create token from AccessTokenRequest:", string(b))
-	if !art.isValid() {
+	if !art.IsValid() {
 		return "", fmt.Errorf("Not a valid token request")
 	}
 	t, err := s.getTokenFromCache(art)
@@ -152,7 +160,7 @@ func (s *OAuthServer) createToken(art *AccessTokenRequest) (string, error) {
 }
 
 func (s *OAuthServer) createClaims(art *AccessTokenRequest) (*AccessTokenClaims, error) {
-	if !art.isRequestByType() {
+	if !art.IsRequestByType() {
 		log.Error("create token only with nfType and targetNfType")
 		return nil, fmt.Errorf("Only support create claims by nfType and targetNfType")
 	}

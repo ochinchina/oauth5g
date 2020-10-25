@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var private_key string = `-----BEGIN RSA PRIVATE KEY-----
+var privateKey string = `-----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAln8DNKCaqc1PeksxHdKpa4bO8bq+bQFdcJwV0dHYFKzXk7Vk
 9TeSHeikmFD5QDSZ6Lb5r3d+iE3Zj/g4vmrwttaynzt+PdTNh6bWAS+J2S8JePeC
 MC+d4A55XtAZdnn/wzOFPivQVE4ny09QsZfLKJcJFRqVgIWQ+Qx3G905wSdCTyjh
@@ -35,21 +35,21 @@ cE4JGbrFDX/MOKest1t8DLHt126uho8AkTXv8DSynJ73tT+FK7pO3JFyQwhnldO4
 uwXXeJThGJPsnLrmwyLTXtGgdoUmD6QB+gY0XgiMDyu03ErDL3SthnI=
 -----END RSA PRIVATE KEY-----`
 
-func createToken()(string, error) {
-	key, err := loadSignatureKey([]byte(private_key))
-        if err != nil {
+func createToken() (string, error) {
+	key, err := loadSignatureKey([]byte(privateKey))
+	if err != nil {
 		return "", err
-        }
-        server := NewOAuthServer("", "instance-1", time.Duration(3600)*time.Second, false, "", "", jwa.RS256, key)
-        req := NewAccessTokenRequest()
-        req.GrantType = "client_credentials"
-        req.NfInstanceId = "12345"
-        req.NfType = "LMF"
-        req.TargetNfType = "AMF"
-        req.Scope = "namf-comm"
-        req.TargetNsiList = []string{"nsi-1", "nsi-2", "nsi-3"}
-        req.TargetSnssaiList = []*Snssai{&Snssai{Sst: 10}, &Snssai{Sst: 30, Sd: "sd-2"}}
-        return server.createToken(req)
+	}
+	server := NewOAuthServer("", "instance-1", time.Duration(3600)*time.Second, false, "", "", jwa.RS256, key)
+	req := NewAccessTokenRequest()
+	req.GrantType = "client_credentials"
+	req.NfInstanceId = "12345"
+	req.NfType = "LMF"
+	req.TargetNfType = "AMF"
+	req.Scope = "namf-comm"
+	req.TargetNsiList = []string{"nsi-1", "nsi-2", "nsi-3"}
+	req.TargetSnssaiList = []*Snssai{&Snssai{Sst: 10}, &Snssai{Sst: 30, Sd: "sd-2"}}
+	return server.createToken(req)
 
 }
 

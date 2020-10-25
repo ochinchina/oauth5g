@@ -6,6 +6,7 @@ import (
 	"github.com/lestrrat-go/jwx/jwt"
 )
 
+// AccessTokenClaims the token claims defined in the 5G
 type AccessTokenClaims struct {
 	//  NF instance id of the NRF
 	Iss string `json:"iss"`
@@ -32,13 +33,17 @@ type AccessTokenClaims struct {
 	ProducerNfSetId string `json:"producerNfSetId,omitempty"`
 }
 
+// NewAccessTokenClaims create a AccessTokenClaims object
 func NewAccessTokenClaims() *AccessTokenClaims {
 	return &AccessTokenClaims{}
 }
 
+// ToJson convert AccessTokenClaims object to json format
 func (atc *AccessTokenClaims) ToJson() ([]byte, error) {
 	return json.Marshal(atc)
 }
+
+// ToJwtToken convert the AccessTokenClaims object to jwt.Token object
 func (atc *AccessTokenClaims) ToJwtToken() jwt.Token {
 	token := jwt.New()
 	token.Set(jwt.IssuerKey, atc.Iss)
@@ -64,6 +69,8 @@ func (atc *AccessTokenClaims) ToJwtToken() jwt.Token {
 	return token
 }
 
+// FromJwtToken create AccessTokenClaims from a jwt.Token
+// if some mandatory fields are missing, return error
 func (atc *AccessTokenClaims) FromJwtToken(token jwt.Token) error {
 	atc.Iss = token.Issuer()
 	atc.Sub = token.Subject()

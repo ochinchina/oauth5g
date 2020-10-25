@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var public_key string = `-----BEGIN PUBLIC KEY-----
+var publicKey string = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAln8DNKCaqc1PeksxHdKp
 a4bO8bq+bQFdcJwV0dHYFKzXk7Vk9TeSHeikmFD5QDSZ6Lb5r3d+iE3Zj/g4vmrw
 ttaynzt+PdTNh6bWAS+J2S8JePeCMC+d4A55XtAZdnn/wzOFPivQVE4ny09QsZfL
@@ -17,13 +17,12 @@ CwIDAQAB
 -----END PUBLIC KEY-----`
 
 func TestVerify(t *testing.T) {
-	key, err := loadSignatureKey([]byte(public_key))
+	key, err := loadSignatureKey([]byte(publicKey))
 	if err != nil {
 		t.Fail()
 	}
 
 	token, _ := createToken()
-
 
 	verifier := NewAccessTokenVerifier(jwa.RS256, key)
 	err = verifier.VerifyToken([]byte(token))

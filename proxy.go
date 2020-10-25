@@ -28,7 +28,7 @@ func NewProxy(tokenReqPath string,
 	proxy := &Proxy{router: router,
 		client:     NewOAuthClient(oauthServerUrl, http2OAuthServer, authServerTlsConfig),
 		verifier:   NewAccessTokenVerifier(tokenVerifyAlgorithm, key),
-		tokenCache: NewTokenCache(5 * 60) }
+		tokenCache: NewTokenCache(5 * 60)}
 	router.POST(tokenReqPath, proxy.HandleTokenRequest)
 	router.POST(tokenVerifyPath, proxy.HandleTokenVerify)
 	return proxy
@@ -62,7 +62,7 @@ func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 	if r, err := p.client.RequestToken(b); err == nil {
 		log.Info("Succeed to get the token:", string(r), " from remote server")
 		resp := NewAccessTokenResponse()
-		if resp.FromBytes(r) != nil {
+		if resp.FromJson(r) != nil {
 			c.Status(http.StatusBadRequest)
 			return
 		}
@@ -77,7 +77,7 @@ func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 }
 
 func (p *Proxy) getTokenFromCache(atr *AccessTokenRequest) (string, error) {
-	if atr.isRequestByType() {
+	if atr.IsRequestByType() {
 		key := fmt.Sprintf("%s-%s", atr.NfType, atr.TargetNfType)
 		log.Info("try to get token  by ", key)
 		return p.tokenCache.GetToken(key)
@@ -86,7 +86,7 @@ func (p *Proxy) getTokenFromCache(atr *AccessTokenRequest) (string, error) {
 }
 
 func (p *Proxy) cacheTokenFor(atr *AccessTokenRequest, expireTime int64, token string) {
-	if atr.isRequestByType() {
+	if atr.IsRequestByType() {
 		key := fmt.Sprintf("%s-%s", atr.NfType, atr.TargetNfType)
 		log.Info("Cache the token ", token, " for ", key, " in expire ", expireTime)
 		p.tokenCache.CacheToken(key, expireTime, token)
@@ -100,7 +100,7 @@ func (p *Proxy) HandleTokenVerify(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	err = p.verifier.VerifyToken( b )
+	err = p.verifier.VerifyToken(b)
 	if err == nil {
 		c.Status(http.StatusOK)
 	} else {

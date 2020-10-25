@@ -16,7 +16,7 @@ func TestAccessTokenResponseDecode(t *testing.T) {
 
 	r := NewAccessTokenResponse()
 
-	err := r.FromBytes([]byte(s))
+	err := r.FromJson([]byte(s))
 	if err != nil {
 		t.Fail()
 	}

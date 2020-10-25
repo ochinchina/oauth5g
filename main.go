@@ -11,16 +11,16 @@ import (
 	"strings"
 	"time"
 )
-
+// AuthServerConfig the configuration for server
 type AuthServerConfig struct {
-	ListenAddr  string `yaml:"listenAddr"`
+	ListenAddr   string `yaml:"listenAddr"`
 	TokenReqPath string `yaml:"tokenReqPath,omitempty"`
-	Http2       bool   `yaml:"http2"`
-	TlsCertFile string `yaml:"tlsCertFile,omitempty"`
-	TlsKeyFile  string `yaml:"tlsKeyFile,omitempty"`
-	InstanceId  string `yaml:"instanceId"`
-	TokenExpire int64  `yaml:"tokenExpire"`
-	Signature   struct {
+	Http2        bool   `yaml:"http2"`
+	TlsCertFile  string `yaml:"tlsCertFile,omitempty"`
+	TlsKeyFile   string `yaml:"tlsKeyFile,omitempty"`
+	InstanceId   string `yaml:"instanceId"`
+	TokenExpire  int64  `yaml:"tokenExpire"`
+	Signature    struct {
 		Algorithm string
 		KeyFile   string `yaml:"keyFile"`
 	}
@@ -112,6 +112,7 @@ func startAuthServer(c *cli.Context) error {
 		key).Start(config.ListenAddr)
 }
 
+// AuthProxyConfig the configure for proxy
 type AuthProxyConfig struct {
 	Proxies []struct {
 		ListenAddr string `yaml:"listenAddr"`

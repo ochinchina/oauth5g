@@ -8,6 +8,7 @@ import (
 	"io"
 )
 
+// ALL_NFTYPES all the NFType defines in the 5G network
 var ALL_NFTYPES map[string]bool = map[string]bool{"NRF": true,
 	"UDM":    true,
 	"AMF":    true,
@@ -43,7 +44,7 @@ var ALL_NFTYPES map[string]bool = map[string]bool{"NRF": true,
 	"SCSCF":  true,
 }
 
-// TS 29.510 Clause 6.1.6.3.11
+// ALL_SERVICE_NAMES, all the 5G services defined in TS 29.510 Clause 6.1.6.3.11
 var ALL_SERVICE_NAMES map[string]bool = map[string]bool{
 	"nnrf-nfm":                     true, //Nnrf_NFManagement Service offered by the NRF
 	"nnrf-disc":                    true, //Nnrf_NFDiscovery Service offered by the NRF
@@ -105,15 +106,19 @@ var ALL_SERVICE_NAMES map[string]bool = map[string]bool{
 
 }
 
+// IsValidNFType return true if the nfType is defined in 5G
 func IsValidNFType(nfType string) bool {
 	_, ok := ALL_NFTYPES[nfType]
 	return ok
 }
+
+// IsValidServiceName return true if the serviceName is defined in 5G
 func IsValidServiceName(serviceName string) bool {
 	_, ok := ALL_SERVICE_NAMES[serviceName]
 	return ok
 }
 
+// PlmnId the PlmnId defined in 5G
 type PlmnId struct {
 	// 3 digital
 	Mcc string `json:"mcc" form:"mcc"`
@@ -121,12 +126,14 @@ type PlmnId struct {
 	Mnc string `json:"mnc" form:"mnc"`
 }
 
+// Snssai the Snssai defined in 5G
 type Snssai struct {
 	// [0,255]
 	Sst int32  `json:"sst" form:"sst"`
 	Sd  string `json:"sd,omitempty"`
 }
 
+// PlmnIdNid the PlmnIdNid defined in 5G
 type PlmnIdNid struct {
 	Mcc string `json:"mcc" form:"mcc"`
 	Mnc string `json:"mnc" form:"mnc"`
@@ -134,6 +141,9 @@ type PlmnIdNid struct {
 	Nid string `json:"nid,omitempty"`
 }
 
+// AccessTokenRequest a request to get a token from authorization server
+// the fields without 'omitempty' are mandatory fields, they must
+// be set before sending a access token request to authorization server
 type AccessTokenRequest struct {
 	GrantType string `json:"grant_type" form:"grant_type"`
 	// in uuid format
@@ -157,14 +167,18 @@ type AccessTokenRequest struct {
 	TargetNfServiceSetId string       `json:"targetNfServiceSetId,omitempty" form:"targetNfServiceSetId,omitempty"`
 }
 
+// NewAccessTokenRequest create a AccessTokenRequest object
 func NewAccessTokenRequest() *AccessTokenRequest {
 	return &AccessTokenRequest{}
 }
 
+// ToJson convert the AccessTokenRequest object to json format
 func (atr *AccessTokenRequest) ToJson() ([]byte, error) {
 	return json.Marshal(atr)
 }
 
+// ToX3WFormEncoding encode the AccessTokenRequest object to
+// application/x-www-form-urlencoded format
 func (atr *AccessTokenRequest) ToX3WFormEncoding() ([]byte, error) {
 	w := bytes.NewBuffer(make([]byte, 0))
 	encoder := form.NewEncoder(w)
@@ -175,17 +189,25 @@ func (atr *AccessTokenRequest) ToX3WFormEncoding() ([]byte, error) {
 	return w.Bytes(), nil
 }
 
+// FromX3WFormEncoding create AccessTokenRequest object from application/x-www-form-urlencoded
+// format
 func (atr *AccessTokenRequest) FromX3WFormEncoding(r io.Reader) error {
 	decoder := form.NewDecoder(r)
 	return decoder.Decode(atr)
 }
 
+// FromJson create AccessTokenRequest object from json
 func (atr *AccessTokenRequest) FromJson(reader io.Reader) error {
 	decoder := json.NewDecoder(reader)
 	return decoder.Decode(atr)
 }
 
-func (atr *AccessTokenRequest) isValid() bool {
+// IsValid check if a AccessTokenRequest is a valid request. A valid request must
+// satisfy:
+// - grant_type must be "client_credentials"
+// - nfInstanceId should not be empty
+// - scope must be a valid service name
+func (atr *AccessTokenRequest) IsValid() bool {
 	if atr.GrantType != "client_credentials" {
 		log.Error("the grant_type ", atr.GrantType, " is not client_credentials")
 		return false
@@ -202,7 +224,10 @@ func (atr *AccessTokenRequest) isValid() bool {
 
 }
 
-func (atr *AccessTokenRequest) isRequestByType() bool {
+// IsRequestByType check if access token by the NFType
+// if both nfType and targetNfType are valid and setting,
+// the request is a token access request by NFType
+func (atr *AccessTokenRequest) IsRequestByType() bool {
 	if len(atr.NfType) > 0 && len(atr.TargetNfType) > 0 {
 		if !IsValidNFType(atr.NfType) {
 			log.Error("Invalid nfType ", atr.NfType)

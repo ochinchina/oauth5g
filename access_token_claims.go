@@ -22,15 +22,15 @@ type AccessTokenClaims struct {
 	Exp int64 `json:"exp"`
 
 	// PLMN ID of the NF service consumer
-	ConsumerPlmnId *PlmnId `json:"consumerPlmnId,omitempty"`
+	ConsumerPlmnID *PlmnID `json:"consumerPlmnID,omitempty"`
 	// PLMN ID of the NF service producer
-	ProducerPlmnId *PlmnId `json:"producerPlmnId,omitempty"`
+	ProducerPlmnID *PlmnID `json:"producerPlmnID,omitempty"`
 	// S-NSSAIs of the NF service producer
 	ProducerSnssaiList []*Snssai `json:"producerSnssaiList,omitempty"`
 	//NSIs of the NF service producer
 	ProducerNsiList []string `json:"producerNsiList,omitempty"`
 	// NF Set ID of the NF service producer
-	ProducerNfSetId string `json:"producerNfSetId,omitempty"`
+	ProducerNfSetID string `json:"producerNfSetId,omitempty"`
 }
 
 // NewAccessTokenClaims create a AccessTokenClaims object
@@ -38,8 +38,8 @@ func NewAccessTokenClaims() *AccessTokenClaims {
 	return &AccessTokenClaims{}
 }
 
-// ToJson convert AccessTokenClaims object to json format
-func (atc *AccessTokenClaims) ToJson() ([]byte, error) {
+// ToJSON convert AccessTokenClaims object to json format
+func (atc *AccessTokenClaims) ToJSON() ([]byte, error) {
 	return json.Marshal(atc)
 }
 
@@ -51,11 +51,11 @@ func (atc *AccessTokenClaims) ToJwtToken() jwt.Token {
 	token.Set(jwt.AudienceKey, atc.Aud)
 	token.Set("scope", atc.Scope)
 	token.Set(jwt.ExpirationKey, atc.Exp)
-	if atc.ConsumerPlmnId != nil {
-		token.Set("consumerPlmnId", atc.ConsumerPlmnId)
+	if atc.ConsumerPlmnID != nil {
+		token.Set("consumerPlmnID", atc.ConsumerPlmnID)
 	}
-	if atc.ProducerPlmnId != nil {
-		token.Set("producerPlmnId", atc.ProducerPlmnId)
+	if atc.ProducerPlmnID != nil {
+		token.Set("producerPlmnID", atc.ProducerPlmnID)
 	}
 	if len(atc.ProducerSnssaiList) > 0 {
 		token.Set("producerSnssaiList", atc.ProducerSnssaiList)
@@ -63,8 +63,8 @@ func (atc *AccessTokenClaims) ToJwtToken() jwt.Token {
 	if len(atc.ProducerNsiList) > 0 {
 		token.Set("producerNsiList", atc.ProducerNsiList)
 	}
-	if len(atc.ProducerNfSetId) > 0 {
-		token.Set("producerNfSetId", atc.ProducerNfSetId)
+	if len(atc.ProducerNfSetID) > 0 {
+		token.Set("producerNfSetId", atc.ProducerNfSetID)
 	}
 	return token
 }
@@ -86,25 +86,25 @@ func (atc *AccessTokenClaims) FromJwtToken(token jwt.Token) error {
 	} else {
 		return fmt.Errorf("Missing scope field")
 	}
-	if p, ok := token.Get("consumerPlmnId"); ok {
+	if p, ok := token.Get("consumerPlmnID"); ok {
 		if b, err := json.Marshal(p); err == nil {
-			atc.ConsumerPlmnId = &PlmnId{}
-			if err = json.Unmarshal(b, atc.ConsumerPlmnId); err != nil {
+			atc.ConsumerPlmnID = &PlmnID{}
+			if err = json.Unmarshal(b, atc.ConsumerPlmnID); err != nil {
 				return err
 			}
 		} else {
-			return fmt.Errorf("Fail to decode consumerPlmnId")
+			return fmt.Errorf("Fail to decode consumerPlmnID")
 		}
 	}
 
-	if p, ok := token.Get("producerPlmnId"); ok {
+	if p, ok := token.Get("producerPlmnID"); ok {
 		if b, err := json.Marshal(p); err == nil {
-			atc.ProducerPlmnId = &PlmnId{}
-			if err = json.Unmarshal(b, atc.ProducerPlmnId); err != nil {
+			atc.ProducerPlmnID = &PlmnID{}
+			if err = json.Unmarshal(b, atc.ProducerPlmnID); err != nil {
 				return err
 			}
 		} else {
-			return fmt.Errorf("Fail to decode producerPlmnId")
+			return fmt.Errorf("Fail to decode producerPlmnID")
 		}
 	}
 
@@ -132,7 +132,7 @@ func (atc *AccessTokenClaims) FromJwtToken(token jwt.Token) error {
 
 	if p, ok := token.Get("producerNfSetId"); ok {
 		if v, ok := p.(string); ok {
-			atc.ProducerNfSetId = v
+			atc.ProducerNfSetID = v
 		} else {
 			return fmt.Errorf("producerNfSetId must be string")
 		}

@@ -22,8 +22,8 @@ func NewAccessTokenResponse() *AccessTokenResponse {
 	return &AccessTokenResponse{}
 }
 
-// FromBytes create a AccessTokenResponse from json format
-func (atr *AccessTokenResponse) FromJson(b []byte) error {
+// FromJSON create a AccessTokenResponse from json format
+func (atr *AccessTokenResponse) FromJSON(b []byte) error {
 	return json.Unmarshal(b, atr)
 }
 
@@ -33,7 +33,7 @@ func (atr *AccessTokenResponse) FromReader(reader io.Reader) error {
 	return decoder.Decode(atr)
 }
 
-// ToJson convert the AccessTokenResponse object to json format
-func (atr *AccessTokenResponse) ToJson() ([]byte, error) {
+// ToJSON convert the AccessTokenResponse object to json format
+func (atr *AccessTokenResponse) ToJSON() ([]byte, error) {
 	return json.Marshal(atr)
 }

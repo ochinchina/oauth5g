@@ -19,9 +19,8 @@ func loadSignatureKeyFromFile(fileName string) (interface{}, error) {
 			return nil, err
 		}
 		return loadSignatureKey(b)
-	} else {
-		return nil, fmt.Errorf("only .pem file supported")
 	}
+	return nil, fmt.Errorf("only .pem file supported")
 }
 func loadSignatureKey(b []byte) (interface{}, error) {
 	p, _ := pem.Decode(b)
@@ -44,7 +43,7 @@ func loadSignatureKey(b []byte) (interface{}, error) {
 
 }
 
-func toJsonBytes(t interface{}) ([]byte, error) {
+func toJSONBytes(t interface{}) ([]byte, error) {
 	return json.Marshal(t)
 }
 
@@ -84,7 +83,6 @@ func loadCertFile(caCertFile string, certFile string, keyFile string) (*tls.Conf
 
 	if cert != nil {
 		return &tls.Config{RootCAs: rootCAs, Certificates: []tls.Certificate{*cert}}, nil
-	} else {
-		return &tls.Config{RootCAs: rootCAs}, nil
 	}
+	return &tls.Config{RootCAs: rootCAs}, nil
 }

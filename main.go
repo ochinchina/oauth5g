@@ -11,14 +11,15 @@ import (
 	"strings"
 	"time"
 )
+
 // AuthServerConfig the configuration for server
 type AuthServerConfig struct {
 	ListenAddr   string `yaml:"listenAddr"`
 	TokenReqPath string `yaml:"tokenReqPath,omitempty"`
-	Http2        bool   `yaml:"http2"`
-	TlsCertFile  string `yaml:"tlsCertFile,omitempty"`
-	TlsKeyFile   string `yaml:"tlsKeyFile,omitempty"`
-	InstanceId   string `yaml:"instanceId"`
+	HTTP2        bool   `yaml:"http2"`
+	TLSCertFile  string `yaml:"tlsCertFile,omitempty"`
+	TLSKeyFile   string `yaml:"tlsKeyFile,omitempty"`
+	InstanceID   string `yaml:"instanceId"`
 	TokenExpire  int64  `yaml:"tokenExpire"`
 	Signature    struct {
 		Algorithm string
@@ -78,11 +79,7 @@ func initLog(logFile string, strLevel string, logSize int, backups int) {
 func loadAuthServerConfig(fileName string) (*AuthServerConfig, error) {
 	r := &AuthServerConfig{}
 	err := loadYamlConfig(fileName, r)
-	if err == nil {
-		return r, err
-	} else {
-		return nil, err
-	}
+	return r, err
 
 }
 func startAuthServer(c *cli.Context) error {
@@ -103,11 +100,11 @@ func startAuthServer(c *cli.Context) error {
 		return err
 	}
 	return NewOAuthServer(config.TokenReqPath,
-		config.InstanceId,
+		config.InstanceID,
 		time.Duration(config.TokenExpire)*time.Second,
-		config.Http2,
-		config.TlsCertFile,
-		config.TlsKeyFile,
+		config.HTTP2,
+		config.TLSCertFile,
+		config.TLSKeyFile,
 		alg,
 		key).Start(config.ListenAddr)
 }
@@ -118,8 +115,8 @@ type AuthProxyConfig struct {
 		ListenAddr string `yaml:"listenAddr"`
 		AuthServer struct {
 			Fqdn       string `yaml:"fqdn,omitempty"`
-			Http2      bool   `yaml:"http2"`
-			Url        string `yaml:"url"`
+			HTTP2      bool   `yaml:"http2"`
+			URL        string `yaml:"url"`
 			CaCertFile string `yaml:"caCertFile,omitempty"`
 			CertFile   string `yaml:"certFile,omitempty"`
 			KeyFile    string `yaml:"keyFile,omitempty"`
@@ -174,7 +171,7 @@ func startAuthProxy(c *cli.Context) error {
 		}
 		serverFqdn := item.AuthServer.Fqdn
 		if len(serverFqdn) <= 0 {
-			u, err := url.Parse(item.AuthServer.Url)
+			u, err := url.Parse(item.AuthServer.URL)
 			if err == nil {
 				serverFqdn = u.Host
 			}
@@ -187,11 +184,11 @@ func startAuthProxy(c *cli.Context) error {
 		go func() {
 			NewProxy(item.TokenReqPath,
 				item.TokenVerifyPath,
-				item.AuthServer.Url,
+				item.AuthServer.URL,
 				tlsConfig,
-				item.AuthServer.Http2,
+				item.AuthServer.HTTP2,
 				jwa.SignatureAlgorithm(item.TokenVerifyAlgorithm),
-				key).Listen(item.ListenAddr)
+				key).Start(item.ListenAddr)
 		}()
 	}
 

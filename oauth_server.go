@@ -27,14 +27,14 @@ type OAuthServer struct {
 	tlsKeyFile  string
 	router      *gin.Engine
 	// the server instance id
-	instanceId  string
+	instanceID  string
 	tokenExpire time.Duration
 	tokenCache  *TokenCache
 }
 
 // NewOAuthServer create a NewOAuthServer server
 func NewOAuthServer(tokenReqPath string,
-	instanceId string,
+	instanceID string,
 	tokenExpire time.Duration,
 	http2 bool,
 	tlsCertFile string,
@@ -44,7 +44,7 @@ func NewOAuthServer(tokenReqPath string,
 	router := gin.New()
 	log.Info("signature algorithm:", alg, ",type of key:", fmt.Sprintf("%T", key))
 	server := &OAuthServer{router: router,
-		instanceId:  instanceId,
+		instanceID:  instanceID,
 		tokenExpire: tokenExpire,
 		http2:       http2,
 		tlsCertFile: tlsCertFile,
@@ -70,18 +70,15 @@ func (s *OAuthServer) Start(addr string) error {
 		}
 		if len(s.tlsCertFile) > 0 && len(s.tlsKeyFile) > 0 {
 			return server.ListenAndServeTLS(s.tlsCertFile, s.tlsKeyFile)
-		} else {
-			return server.ListenAndServe()
 		}
+		return server.ListenAndServe()
 
-	} else {
-		log.Info("start http server")
-		if len(s.tlsCertFile) > 0 && len(s.tlsKeyFile) > 0 {
-			return s.router.RunTLS(addr, s.tlsCertFile, s.tlsKeyFile)
-		} else {
-			return s.router.Run(addr)
-		}
 	}
+	log.Info("start http server")
+	if len(s.tlsCertFile) > 0 && len(s.tlsKeyFile) > 0 {
+		return s.router.RunTLS(addr, s.tlsCertFile, s.tlsKeyFile)
+	}
+	return s.router.Run(addr)
 }
 
 // HandleTokenRequest handle the AccessTokenRequest from the client
@@ -135,7 +132,7 @@ func (s *OAuthServer) cacheTokenFor(art *AccessTokenRequest, expireTime int64, t
 }
 
 func (s *OAuthServer) createToken(art *AccessTokenRequest) (string, error) {
-	b, _ := art.ToJson()
+	b, _ := art.ToJSON()
 	log.Info("create token from AccessTokenRequest:", string(b))
 	if !art.IsValid() {
 		return "", fmt.Errorf("Not a valid token request")
@@ -166,10 +163,10 @@ func (s *OAuthServer) createClaims(art *AccessTokenRequest) (*AccessTokenClaims,
 	}
 
 	atc := NewAccessTokenClaims()
-	atc.Iss = s.instanceId
-	atc.Sub = art.NfInstanceId
-	if len(art.TargetNfInstanceId) > 0 {
-		atc.Aud = []string{art.TargetNfInstanceId}
+	atc.Iss = s.instanceID
+	atc.Sub = art.NfInstanceID
+	if len(art.TargetNfInstanceID) > 0 {
+		atc.Aud = []string{art.TargetNfInstanceID}
 	} else {
 		atc.Aud = []string{art.TargetNfType}
 	}
@@ -177,10 +174,10 @@ func (s *OAuthServer) createClaims(art *AccessTokenRequest) (*AccessTokenClaims,
 	atc.Scope = art.Scope
 	atc.Exp = s.getTokenExpireTime().Unix()
 	if art.RequesterPlmn != nil {
-		atc.ConsumerPlmnId = art.RequesterPlmn
+		atc.ConsumerPlmnID = art.RequesterPlmn
 	}
 	if art.TargetPlmn != nil {
-		atc.ProducerPlmnId = art.TargetPlmn
+		atc.ProducerPlmnID = art.TargetPlmn
 	}
 	if art.TargetSnssaiList != nil {
 		atc.ProducerSnssaiList = art.TargetSnssaiList
@@ -188,7 +185,7 @@ func (s *OAuthServer) createClaims(art *AccessTokenRequest) (*AccessTokenClaims,
 	if len(art.TargetNsiList) > 0 {
 		atc.ProducerNsiList = art.TargetNsiList
 	}
-	atc.ProducerNfSetId = art.TargetNfServiceSetId
+	atc.ProducerNfSetID = art.TargetNfServiceSetID
 
 	return atc, nil
 }

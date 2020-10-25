@@ -32,16 +32,16 @@ func TestFromToJwtToken(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	new_token, err := jwt.ParseBytes(payload)
+	newToken, err := jwt.ParseBytes(payload)
 
-	fmt.Printf("new_token:%v\n", new_token)
-	new_atc := NewAccessTokenClaims()
-	err = new_atc.FromJwtToken(new_token)
+	fmt.Printf("newToken:%v\n", newToken)
+	newAtc := NewAccessTokenClaims()
+	err = newAtc.FromJwtToken(newToken)
 	if err != nil {
 		fmt.Printf("err:%v\n", err)
 		t.Fail()
 	}
-	fmt.Printf("new claims:%v\n", new_atc)
-	b, _ := new_atc.ToJson()
+	fmt.Printf("new claims:%v\n", newAtc)
+	b, _ := newAtc.ToJson()
 	fmt.Printf("%s\n", string(b))
 }

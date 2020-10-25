@@ -11,6 +11,7 @@ type TokenVerifyCache struct {
 	tokens map[string]int64
 }
 
+// NewTokenVerifyCache create a TokenVerifyCache object
 func NewTokenVerifyCache() *TokenVerifyCache {
 	return &TokenVerifyCache{tokens: make(map[string]int64)}
 }

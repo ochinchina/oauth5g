@@ -53,9 +53,8 @@ func (atv *AccessTokenVerifier) VerifyToken(b []byte) error {
 	now := time.Now().Unix()
 	if atc.Exp < now {
 		return fmt.Errorf("Expiration time %d is less than current time %d", atc.Exp, now)
-	} else {
-		atv.verifiedTokenCache.AddVerifiedToken(string(b), atc.Exp)
 	}
+	atv.verifiedTokenCache.AddVerifiedToken(string(b), atc.Exp)
 
 	return err
 }

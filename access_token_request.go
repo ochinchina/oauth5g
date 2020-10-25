@@ -8,8 +8,8 @@ import (
 	"io"
 )
 
-// ALL_NFTYPES all the NFType defines in the 5G network
-var ALL_NFTYPES map[string]bool = map[string]bool{"NRF": true,
+// AllNFTypes all the NFType defines in the 5G network
+var AllNFTypes map[string]bool = map[string]bool{"NRF": true,
 	"UDM":    true,
 	"AMF":    true,
 	"SMF":    true,
@@ -44,8 +44,8 @@ var ALL_NFTYPES map[string]bool = map[string]bool{"NRF": true,
 	"SCSCF":  true,
 }
 
-// ALL_SERVICE_NAMES, all the 5G services defined in TS 29.510 Clause 6.1.6.3.11
-var ALL_SERVICE_NAMES map[string]bool = map[string]bool{
+// AllServiceNames all the 5G services defined in TS 29.510 Clause 6.1.6.3.11
+var AllServiceNames map[string]bool = map[string]bool{
 	"nnrf-nfm":                     true, //Nnrf_NFManagement Service offered by the NRF
 	"nnrf-disc":                    true, //Nnrf_NFDiscovery Service offered by the NRF
 	"nnrf-oauth2":                  true, //Nnrf_AccessToken Service offered by the NRF
@@ -108,18 +108,18 @@ var ALL_SERVICE_NAMES map[string]bool = map[string]bool{
 
 // IsValidNFType return true if the nfType is defined in 5G
 func IsValidNFType(nfType string) bool {
-	_, ok := ALL_NFTYPES[nfType]
+	_, ok := AllNFTypes[nfType]
 	return ok
 }
 
 // IsValidServiceName return true if the serviceName is defined in 5G
 func IsValidServiceName(serviceName string) bool {
-	_, ok := ALL_SERVICE_NAMES[serviceName]
+	_, ok := AllServiceNames[serviceName]
 	return ok
 }
 
-// PlmnId the PlmnId defined in 5G
-type PlmnId struct {
+// PlmnID the PlmnID defined in 5G
+type PlmnID struct {
 	// 3 digital
 	Mcc string `json:"mcc" form:"mcc"`
 	// 2 or 2 digital
@@ -133,8 +133,8 @@ type Snssai struct {
 	Sd  string `json:"sd,omitempty"`
 }
 
-// PlmnIdNid the PlmnIdNid defined in 5G
-type PlmnIdNid struct {
+// PlmnIDNid the PlmnIDNid defined in 5G
+type PlmnIDNid struct {
 	Mcc string `json:"mcc" form:"mcc"`
 	Mnc string `json:"mnc" form:"mnc"`
 	// pattern: ^[A-Fa-f0-9]{11}$
@@ -147,24 +147,24 @@ type PlmnIdNid struct {
 type AccessTokenRequest struct {
 	GrantType string `json:"grant_type" form:"grant_type"`
 	// in uuid format
-	NfInstanceId string `json:"nfInstanceId" form:"nfInstanceId"`
+	NfInstanceID string `json:"nfInstanceId" form:"nfInstanceId"`
 	// NFType in TS29501_Nnrf_NFManagement.yaml clause 6.1.6.3.3
 	NfType       string `json:"nfType,omitempty" form:"nfType,omitempty"`
 	TargetNfType string `json:"targetNfType,omitempty" form:"targetNfType,omitempty"`
 	// in uuid format
-	TargetNfInstanceId string `json:"targetNfInstanceId,emitempty" form:"targetNfInstanceId,omitempty"`
+	TargetNfInstanceID string `json:"targetNfInstanceID,emitempty" form:"targetNfInstanceID,omitempty"`
 	// defined in TS 29.510 6.1.6.3.11
 	Scope                string       `json:"scope" form:"scope,required"`
-	RequesterPlmn        *PlmnId      `json:"targetNfInstanceId,omitempty" form:"targetNfInstanceId,omitempty"`
-	RequesterPlmnList    []*PlmnId    `json:"requesterPlmnList,omitempty" form:"requesterPlmnList,omitempty"`
+	RequesterPlmn        *PlmnID      `json:"targetNfInstanceID,omitempty" form:"targetNfInstanceID,omitempty"`
+	RequesterPlmnList    []*PlmnID    `json:"requesterPlmnList,omitempty" form:"requesterPlmnList,omitempty"`
 	RequesterSnssaiList  []*Snssai    `json:"requesterSnssaiList,omitempty" form:"requesterSnssaiList,omitempty"`
 	RequesterFqdn        string       `json:"requesterFqdn,omitempty" form:"requesterFqdn,omitempty"`
-	RequesterSnpnList    []*PlmnIdNid `json:"requesterSnpnList,omitempty" form:"requesterSnpnList,omitempty"`
-	TargetPlmn           *PlmnId      `json:"targetPlmn,omitempty" form:"targetPlmn,omitempty"`
+	RequesterSnpnList    []*PlmnIDNid `json:"requesterSnpnList,omitempty" form:"requesterSnpnList,omitempty"`
+	TargetPlmn           *PlmnID      `json:"targetPlmn,omitempty" form:"targetPlmn,omitempty"`
 	TargetSnssaiList     []*Snssai    `json:"targetSnssaiList,omitempty" form:"targetSnssaiList,omitempty"`
 	TargetNsiList        []string     `json:"targetNsiList,omitempty" form:"targetNsiList,omitempty"`
-	TargetNfSetId        string       `json:"targetNfSetId,omitempty" form:"targetNfSetId,omitempty"`
-	TargetNfServiceSetId string       `json:"targetNfServiceSetId,omitempty" form:"targetNfServiceSetId,omitempty"`
+	TargetNfSetID        string       `json:"targetNfSetId,omitempty" form:"targetNfSetId,omitempty"`
+	TargetNfServiceSetID string       `json:"targetNfServiceSetId,omitempty" form:"targetNfServiceSetId,omitempty"`
 }
 
 // NewAccessTokenRequest create a AccessTokenRequest object
@@ -172,8 +172,8 @@ func NewAccessTokenRequest() *AccessTokenRequest {
 	return &AccessTokenRequest{}
 }
 
-// ToJson convert the AccessTokenRequest object to json format
-func (atr *AccessTokenRequest) ToJson() ([]byte, error) {
+// ToJSON convert the AccessTokenRequest object to json format
+func (atr *AccessTokenRequest) ToJSON() ([]byte, error) {
 	return json.Marshal(atr)
 }
 
@@ -196,8 +196,8 @@ func (atr *AccessTokenRequest) FromX3WFormEncoding(r io.Reader) error {
 	return decoder.Decode(atr)
 }
 
-// FromJson create AccessTokenRequest object from json
-func (atr *AccessTokenRequest) FromJson(reader io.Reader) error {
+// FromJSON create AccessTokenRequest object from json
+func (atr *AccessTokenRequest) FromJSON(reader io.Reader) error {
 	decoder := json.NewDecoder(reader)
 	return decoder.Decode(atr)
 }
@@ -212,7 +212,7 @@ func (atr *AccessTokenRequest) IsValid() bool {
 		log.Error("the grant_type ", atr.GrantType, " is not client_credentials")
 		return false
 	}
-	if len(atr.NfInstanceId) <= 0 {
+	if len(atr.NfInstanceID) <= 0 {
 		log.Error("Missing nfInstanceId")
 		return false
 	}

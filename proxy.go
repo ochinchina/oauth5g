@@ -10,6 +10,9 @@ import (
 	"net/url"
 )
 
+// Proxy oauth2 proxy
+// Get the token from the authorization server through the proxy
+// Verify the token from the authorization server with the key
 type Proxy struct {
 	router     *gin.Engine
 	client     *OAuthClient
@@ -17,16 +20,17 @@ type Proxy struct {
 	tokenCache *TokenCache
 }
 
+// NewProxy create a new Proxy object
 func NewProxy(tokenReqPath string,
 	tokenVerifyPath string,
-	oauthServerUrl string,
-	authServerTlsConfig *tls.Config,
+	oauthServerURL string,
+	authServerTLSConfig *tls.Config,
 	http2OAuthServer bool,
 	tokenVerifyAlgorithm jwa.SignatureAlgorithm,
 	key interface{}) *Proxy {
 	router := gin.New()
 	proxy := &Proxy{router: router,
-		client:     NewOAuthClient(oauthServerUrl, http2OAuthServer, authServerTlsConfig),
+		client:     NewOAuthClient(oauthServerURL, http2OAuthServer, authServerTLSConfig),
 		verifier:   NewAccessTokenVerifier(tokenVerifyAlgorithm, key),
 		tokenCache: NewTokenCache(5 * 60)}
 	router.POST(tokenReqPath, proxy.HandleTokenRequest)
@@ -34,13 +38,19 @@ func NewProxy(tokenReqPath string,
 	return proxy
 }
 
-func (p *Proxy) Listen(addr string) error {
+// Start start proxy, listen on the specified address and accept the token
+// access request, the request will be forwarded to the real authorization
+// server
+func (p *Proxy) Start(addr string) error {
 	return p.router.Run(addr)
 }
 
+// HandleTokenRequest handle the access token request from the client side
+// this request will be forwarded to the authorization server and return
+// the access code to the client
 func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 	atr := NewAccessTokenRequest()
-	err := atr.FromJson(c.Request.Body)
+	err := atr.FromJSON(c.Request.Body)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return
@@ -62,7 +72,7 @@ func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 	if r, err := p.client.RequestToken(b); err == nil {
 		log.Info("Succeed to get the token:", string(r), " from remote server")
 		resp := NewAccessTokenResponse()
-		if resp.FromJson(r) != nil {
+		if resp.FromJSON(r) != nil {
 			c.Status(http.StatusBadRequest)
 			return
 		}
@@ -70,10 +80,9 @@ func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 		c.Status(http.StatusOK)
 		c.Writer.Write(r)
 		return
-	} else {
-		log.Error("Fail to get the token with error:", err)
-		c.Status(http.StatusBadRequest)
 	}
+	log.Error("Fail to get the token with error:", err)
+	c.Status(http.StatusBadRequest)
 }
 
 func (p *Proxy) getTokenFromCache(atr *AccessTokenRequest) (string, error) {
@@ -93,6 +102,7 @@ func (p *Proxy) cacheTokenFor(atr *AccessTokenRequest, expireTime int64, token s
 	}
 }
 
+// HandleTokenVerify verify the token got from authorization server with the algoritm and the key
 func (p *Proxy) HandleTokenVerify(c *gin.Context) {
 	b, err := c.GetRawData()
 	if err != nil {
@@ -110,7 +120,7 @@ func (p *Proxy) HandleTokenVerify(c *gin.Context) {
 
 }
 
-func (p *Proxy) toUrlValues(kvs *map[string]interface{}) (url.Values, error) {
+func (p *Proxy) toURLValues(kvs *map[string]interface{}) (url.Values, error) {
 	values := url.Values{}
 
 	for k, v := range *kvs {

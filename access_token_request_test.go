@@ -10,17 +10,17 @@ func TestAccessTokenRequestMandatoryFields(t *testing.T) {
 	//s := `{"grant_type":"client_credentials","nfInstanceId":"123","scope":"NMF","requesterPlmnList":[{"mcc":"281","123"}]}`
 	atr := NewAccessTokenRequest()
 	atr.GrantType = "client_credentials"
-	atr.NfInstanceId = "123"
+	atr.NfInstanceID = "123"
 	atr.Scope = "NMF"
-	p1 := PlmnId{Mcc: "081", Mnc: "123"}
-	atr.RequesterPlmnList = []*PlmnId{&p1}
-	b, _ := atr.ToJson()
+	p1 := PlmnID{Mcc: "081", Mnc: "123"}
+	atr.RequesterPlmnList = []*PlmnID{&p1}
+	b, _ := atr.ToJSON()
 	s := string(b)
-	err := atr.FromJson(bytes.NewBufferString(s))
+	err := atr.FromJSON(bytes.NewBufferString(s))
 	if err != nil {
 		t.Fail()
 	}
-	b, err = atr.ToJson()
+	b, err = atr.ToJSON()
 	if err != nil {
 		t.Fail()
 	}
@@ -40,6 +40,6 @@ func TestAccessTokenRequestDecodeFromEncoding(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	b, _ := atr.ToJson()
+	b, _ := atr.ToJSON()
 	fmt.Println(string(b))
 }

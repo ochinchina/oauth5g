@@ -18,10 +18,10 @@ func TestFromToJwtToken(t *testing.T) {
 	atc.Aud = []string{"AMF"}
 	atc.Scope = "namf-comm"
 	atc.ProducerSnssaiList = []*Snssai{&Snssai{Sst: 10}, &Snssai{Sst: 20, Sd: "sd-1"}}
-	atc.ConsumerPlmnId = &PlmnId{Mcc: "123", Mnc: "456"}
-	atc.ProducerPlmnId = &PlmnId{Mcc: "123", Mnc: "789"}
+	atc.ConsumerPlmnID = &PlmnID{Mcc: "123", Mnc: "456"}
+	atc.ProducerPlmnID = &PlmnID{Mcc: "123", Mnc: "789"}
 	atc.ProducerNsiList = []string{"nsi-1", "nsi-2"}
-	atc.ProducerNfSetId = "nf-set-id"
+	atc.ProducerNfSetID = "nf-set-id"
 	token := atc.ToJwtToken()
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -42,6 +42,6 @@ func TestFromToJwtToken(t *testing.T) {
 		t.Fail()
 	}
 	fmt.Printf("new claims:%v\n", newAtc)
-	b, _ := newAtc.ToJson()
+	b, _ := newAtc.ToJSON()
 	fmt.Printf("%s\n", string(b))
 }

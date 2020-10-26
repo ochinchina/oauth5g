@@ -88,7 +88,7 @@ func (s *OAuthServer) HandleTokenRequest(c *gin.Context) {
 	b, err := c.GetRawData()
 	if err != nil {
 		log.Error("Fail to read request with error:", err)
-		c.Status(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, NewAccessTokenError(InvalidRequest))
 		return
 	}
 	art := NewAccessTokenRequest()
@@ -99,9 +99,9 @@ func (s *OAuthServer) HandleTokenRequest(c *gin.Context) {
 		return
 	}
 
-	token, err := s.createToken(art)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
+	token, accessTokenErr := s.createToken(art)
+	if accessTokenErr != nil {
+		c.JSON(http.StatusBadRequest, accessTokenErr)
 		return
 	}
 	resp := AccessTokenResponse{
@@ -131,35 +131,36 @@ func (s *OAuthServer) cacheTokenFor(art *AccessTokenRequest, expireTime int64, t
 	}
 }
 
-func (s *OAuthServer) createToken(art *AccessTokenRequest) (string, error) {
+func (s *OAuthServer) createToken(art *AccessTokenRequest) (string, *AccessTokenError) {
 	b, _ := art.ToJSON()
 	log.Info("create token from AccessTokenRequest:", string(b))
-	if !art.IsValid() {
-		return "", fmt.Errorf("Not a valid token request")
+	accessTokenErr := art.CheckValid()
+	if accessTokenErr != nil {
+		return "", accessTokenErr
 	}
 	t, err := s.getTokenFromCache(art)
 	if err == nil {
 		return t, nil
 	}
-	claims, err := s.createClaims(art)
-	if err != nil {
-		return "", err
+	claims, accessTokenErr := s.createClaims(art)
+	if accessTokenErr != nil {
+		return "", accessTokenErr
 	}
 	token := claims.ToJwtToken()
 	payload, err := jwt.Sign(token, s.alg, s.key)
 	if err != nil {
 		log.Error("Fail to create JWT Token with error:", err)
-		return "", err
+		return "", NewAccessTokenError(InvalidRequest)
 	}
 	t = string(payload)
 	s.cacheTokenFor(art, claims.Exp, t)
 	return t, nil
 }
 
-func (s *OAuthServer) createClaims(art *AccessTokenRequest) (*AccessTokenClaims, error) {
+func (s *OAuthServer) createClaims(art *AccessTokenRequest) (*AccessTokenClaims, *AccessTokenError) {
 	if !art.IsRequestByType() {
 		log.Error("create token only with nfType and targetNfType")
-		return nil, fmt.Errorf("Only support create claims by nfType and targetNfType")
+		return nil, NewAccessTokenError(InvalidRequest)
 	}
 
 	atc := NewAccessTokenClaims()

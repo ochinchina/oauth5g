@@ -16,7 +16,7 @@ func TestAccessTokenResponseDecode(t *testing.T) {
 
 	r := NewAccessTokenResponse()
 
-	err := r.FromJson([]byte(s))
+	err := r.FromJSON([]byte(s))
 	if err != nil {
 		t.Fail()
 	}
@@ -27,7 +27,7 @@ func TestAccessTokenResponseDecode(t *testing.T) {
 	if r.ExpiresIn != 3600 {
 		t.Fail()
 	}
-	b, err := r.ToJson()
+	b, err := r.ToJSON()
 	if err != nil {
 		t.Fail()
 	}

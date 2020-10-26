@@ -43,13 +43,17 @@ func createToken() (string, error) {
 	server := NewOAuthServer("", "instance-1", time.Duration(3600)*time.Second, false, "", "", jwa.RS256, key)
 	req := NewAccessTokenRequest()
 	req.GrantType = "client_credentials"
-	req.NfInstanceId = "12345"
+	req.NfInstanceID = "12345"
 	req.NfType = "LMF"
 	req.TargetNfType = "AMF"
 	req.Scope = "namf-comm"
 	req.TargetNsiList = []string{"nsi-1", "nsi-2", "nsi-3"}
 	req.TargetSnssaiList = []*Snssai{&Snssai{Sst: 10}, &Snssai{Sst: 30, Sd: "sd-2"}}
-	return server.createToken(req)
+	token, accessTokenErr := server.createToken(req)
+	if accessTokenErr != nil {
+		return "", fmt.Errorf(accessTokenErr.Error)
+	}
+	return token, nil
 
 }
 

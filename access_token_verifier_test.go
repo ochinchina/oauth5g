@@ -23,6 +23,7 @@ func TestVerify(t *testing.T) {
 	}
 
 	token, _ := createToken()
+	fmt.Printf("created token:%s", string(token))
 
 	verifier := NewAccessTokenVerifier(jwa.RS256, key)
 	err = verifier.VerifyToken([]byte(token))

@@ -202,25 +202,35 @@ func (atr *AccessTokenRequest) FromJSON(reader io.Reader) error {
 	return decoder.Decode(atr)
 }
 
-// IsValid check if a AccessTokenRequest is a valid request. A valid request must
+// CheckValid check if a AccessTokenRequest is a valid request. A valid request must
 // satisfy:
 // - grant_type must be "client_credentials"
 // - nfInstanceId should not be empty
 // - scope must be a valid service name
-func (atr *AccessTokenRequest) IsValid() bool {
+func (atr *AccessTokenRequest) CheckValid() *AccessTokenError {
 	if atr.GrantType != "client_credentials" {
 		log.Error("the grant_type ", atr.GrantType, " is not client_credentials")
-		return false
+		return NewAccessTokenError(UnsupportedGrantType)
+	}
+
+	if len(atr.NfType) > 0 && !IsValidNFType(atr.NfType) {
+		log.Error("Invalid nfType ", atr.NfType)
+		return NewAccessTokenError(InvalidRequest)
+	}
+
+	if len(atr.TargetNfType) > 0 && !IsValidNFType(atr.TargetNfType) {
+		log.Error("Invalid targetNfType", atr.TargetNfType)
+		return NewAccessTokenError(InvalidRequest)
 	}
 	if len(atr.NfInstanceID) <= 0 {
 		log.Error("Missing nfInstanceId")
-		return false
+		return NewAccessTokenError(InvalidClient)
 	}
 	if !IsValidServiceName(atr.Scope) {
 		log.Error("Not valid scope ", atr.Scope)
-		return false
+		return NewAccessTokenError(InvalidScope)
 	}
-	return true
+	return nil
 
 }
 
@@ -229,14 +239,6 @@ func (atr *AccessTokenRequest) IsValid() bool {
 // the request is a token access request by NFType
 func (atr *AccessTokenRequest) IsRequestByType() bool {
 	if len(atr.NfType) > 0 && len(atr.TargetNfType) > 0 && len(atr.TargetNfInstanceID) <= 0 {
-		if !IsValidNFType(atr.NfType) {
-			log.Error("Invalid nfType ", atr.NfType)
-			return false
-		}
-		if !IsValidNFType(atr.TargetNfType) {
-			log.Error("Invalid targetNfType", atr.TargetNfType)
-			return false
-		}
 		return true
 	}
 	return false

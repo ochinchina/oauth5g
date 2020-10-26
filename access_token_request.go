@@ -228,7 +228,7 @@ func (atr *AccessTokenRequest) IsValid() bool {
 // if both nfType and targetNfType are valid and setting,
 // the request is a token access request by NFType
 func (atr *AccessTokenRequest) IsRequestByType() bool {
-	if len(atr.NfType) > 0 && len(atr.TargetNfType) > 0 {
+	if len(atr.NfType) > 0 && len(atr.TargetNfType) > 0 && len(atr.TargetNfInstanceID) <= 0 {
 		if !IsValidNFType(atr.NfType) {
 			log.Error("Invalid nfType ", atr.NfType)
 			return false

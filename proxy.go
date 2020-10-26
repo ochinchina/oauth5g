@@ -93,7 +93,7 @@ func (p *Proxy) HandleTokenRequest(c *gin.Context) {
 
 func (p *Proxy) getTokenFromCache(atr *AccessTokenRequest) (string, error) {
 	if atr.IsRequestByType() {
-		key := fmt.Sprintf("%s-%s", atr.NfType, atr.TargetNfType)
+		key := fmt.Sprintf("%s@%s-%s", atr.NfInstanceID, atr.NfType, atr.TargetNfType)
 		log.Info("try to get token  by ", key)
 		return p.tokenCache.GetToken(key)
 	}
@@ -102,7 +102,7 @@ func (p *Proxy) getTokenFromCache(atr *AccessTokenRequest) (string, error) {
 
 func (p *Proxy) cacheTokenFor(atr *AccessTokenRequest, expireTime int64, token string) {
 	if atr.IsRequestByType() {
-		key := fmt.Sprintf("%s-%s", atr.NfType, atr.TargetNfType)
+		key := fmt.Sprintf("%s@%s-%s", atr.NfInstanceID, atr.NfType, atr.TargetNfType)
 		log.Info("Cache the token ", token, " for ", key, " in expire ", expireTime)
 		p.tokenCache.CacheToken(key, expireTime, token)
 	}
